@@ -45,9 +45,16 @@ int drive_straight (int speed , float distance)
     return 0;
 }
 
-int drive_arc(int motorl_port , int motorr_port , int speed , float radius , float angle)
+int drive_arc(int speed , float radius , float angle)
 {
+    // todo
+    return 0;
+}
 
+int drive_spin(int speed , float theta)
+{
+    // todo
+    return 0;
 }
 
 
