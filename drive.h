@@ -19,6 +19,7 @@ int drive_straight (int motorl_port , int motorr_port , int speed , float distan
     return 0;
 }
 
+int drive_arc
 
 
 #endif // MOTOR_H_INCLUDED
