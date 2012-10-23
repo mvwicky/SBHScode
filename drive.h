@@ -1,7 +1,8 @@
 #ifndef MOTOR_H_INCLUDED
 #define MOTOR_H_INCLUDED
 /*
-This library contains the code to drive motors that move the robot
+This library contains the code to drive motors that move the robot.
+Also contains code to drive motors not associated with movement.
 created 10/17/12
 
 
@@ -17,20 +18,24 @@ created 10/17/12
 
 */
 #include <stdio.h>
-#include <string.h>
 #define PI 3.14159
 #define DEG_TO_RAD (PI / 180.0)
 // todo
-//#define WHEEL1D
-//#define WHEEL2D
+
 struct drive_motors {
     int port; // port that the motor is in
-    int radius_to_middle; // 1/2 of the distance from one motor to the other
-    int ticks; //  ticks per revolution (1000)
-    int diameter; // diameter of the wheel
+    float radius_to_middle; // 1/2 of the distance from one motor to the other
+    float ticks; //  ticks per revolution (1000)
+    float diameter; // diameter of the wheel
 } left , right;
 
-void build_left_wheel(int port , int rad , int ticks , int diameter)
+struct gen_motor {
+    int port; // port
+    float ticks; // ticks per revolution (1000)
+    float diameter; // diameter of wheel
+} gen[10];
+
+void build_left_wheel(int port , float rad , float ticks , float diameter)
 {
     left.port = port;
     left.radius_to_middle = rad;
@@ -38,7 +43,7 @@ void build_left_wheel(int port , int rad , int ticks , int diameter)
     left.diameter = diameter;
 }
 
-void build_right_wheel(int port , int rad , int ticks , int diameter)
+void build_right_wheel(int port , float rad , float ticks , float diameter)
 {
     right.port = port;
     right.radius_to_middle = rad;
@@ -53,10 +58,10 @@ int drive_straight (int speed , float distance) // both values in meters
 	mrp(left.port , speed , (int)lticks);
 	mrp(right.port , speed , (int)rticks);
     bmd(left.port);
-    bmd(right.port);'
+    bmd(right.port);
     return 0;
 }
-
+// FIX THIS: Wheels need to move at different speeds
 int drive_arc(int speed , float radius , float angle , float direction) // radius in meters , angle in degrees
 // if direction == 1 then left wheel is inner
 // if direction == -1 then right wheel is inner
@@ -81,7 +86,7 @@ int drive_arc(int speed , float radius , float angle , float direction) // radiu
     if (direction == -1) // CW
     {
         Sinner = (radius - right.radius_to_middle) * (angle * DEG_TO_RAD);// inner arc length
-        Souter = (radius + left.radius_to_middle) * (angle * DEG_TO_RAD) // outer arc length
+        Souter = (radius + left.radius_to_middle) * (angle * DEG_TO_RAD); // outer arc length
         inTicks = (1000 * Sinner) / (PI * right.diameter); // inner wheel ticks to move
         outTicks = (1000 * Souter) / (PI * left.diameter); // outer wheel ticks to move
         mrp(left.port , speed , (int)inTicks);
@@ -130,6 +135,23 @@ int drive_spin(int speed , float theta , int direction) // angle in degrees
     // todo
     return 0;
 }
+
+
+
+void build_generic_motor (int n , int port , float ticks , float diameter)
+{
+    gen[n].port = port;
+    gen[n].ticks = ticks;
+    gen[n].diameter = diameter;
+}
+
+int motor_spin_for (int n , float speed , float time)
+{
+    float ticks = (speed * time);
+    mrp(gen[n].port , speed , (int)ticks);
+    bmd(gen[n].port);
+}
+
 
 
 #endif // MOTOR_H_INCLUDED
