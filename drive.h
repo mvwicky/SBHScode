@@ -66,6 +66,8 @@ int drive_arc(int speed , float radius , float angle , float direction) // radiu
 // if direction == 1 then left wheel is inner
 // if direction == -1 then right wheel is inner
 // if direction != -1 && direction != 1 then error
+// Idea: Base the speed on an arbitrary time variable. Would be easier to implement but doesn't seem ideal.
+//
 {
     float Sinner;
     float Souter;
