@@ -54,17 +54,17 @@ int ssp(int n , int fin_pos)
 
 }
 
-double_servo_move(int n , int m , int fin_pos)
+void double_servo_move(int n , int m , int fin_pos)
 {
-    int current_posn = get_servo_position(servo_gen[n]);
-    int current_posm = get_servo_position(servo_gen[m]);
+    int current_posn = get_servo_position(n);
+    int current_posm = get_servo_position(m);
     if (current_posn != current_posm)
     {
         current_posn = current_posm;
-        set_servo_position(gen_servo[m] , current_posm);
-        set_servo_position(gen_servo[n] , current_posn);
-        current_posn = get_servo_position(servo_gen[n]);
-        current_posm = get_servo_position(servo_gen[m]);
+        set_servo_position(m , current_posm);
+        set_servo_position(n , current_posn);
+        current_posn = get_servo_position(n);
+        current_posm = get_servo_position(m);
     }
     if (current_posn < fin_pos && current_posm < fin_pos)
     {
@@ -72,8 +72,8 @@ double_servo_move(int n , int m , int fin_pos)
         {
             current_posn+=1;
             current_posm+=1;
-            set_servo_position(gen_servo[n] , current_posn);
-            set_servo_position(gen_servo[m] , current_posm);
+            set_servo_position(n , current_posn);
+            set_servo_position(m , current_posm);
             if (current_posn >= fin_pos || current_posm >= fin_pos)
             {
                 break;

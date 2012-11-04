@@ -69,18 +69,26 @@ int drive_arc(int speed , float radius , float angle , float direction) // radiu
 // Idea: Base the speed on an arbitrary time variable. Would be easier to implement but doesn't seem ideal.
 //
 {
+    float S;
     float Sinner;
     float Souter;
     float inTicks;
     float outTicks;
+    float sprop;
+    float lspeed;
+    float rspeed;
     if (direction == 1) // CCW
     {
+        S = radius * (angle * DEG_TO_RAD);
         Sinner = (radius - left.radius_to_middle) * (angle * DEG_TO_RAD); // inner arc length
         Souter = (radius + right.radius_to_middle) * (angle * DEG_TO_RAD); // outer arc length
+        sprop = Sinner/Souter;
         inTicks = (1000 * Sinner) / (PI * right.diameter); // inner wheel ticks to move
         outTicks = (1000 * Souter) / (PI * left.diameter); // outer wheel ticks to move
-        mrp(right.port , speed , (int)inTicks);
-        mrp(left.port, speed , (int)outTicks);
+        lspeed = (float)speed * sprop * Souter / S;
+        rspeed = (float)speed * sprop * Sinner / S;
+        mrp(right.port , rspeed , (int)inTicks);
+        mrp(left.port, lspeed , (int)outTicks);
         bmd(right.port);
         bmd(left.port);
 
