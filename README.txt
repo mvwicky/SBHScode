@@ -1,1 +1,1 @@
-This is our functions and stuff
+This library contains a class that controls the robots for the SBHS robotics team's robots.
