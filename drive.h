@@ -26,7 +26,7 @@ struct drive_motors {
     int port; // port that the motor is in
     float radius_to_middle; // 1/2 of the distance from one motor to the other
     float ticks; //  ticks per revolution (1000)
-    float diameter; // diameter of the wheel
+    float diameter; // diameter of the wheel in meters
 } left , right;
 
 struct gen_motor { 
@@ -149,7 +149,7 @@ int drive_spin(int speed , float theta , int direction) // angle in degrees
 {
     float lticks;
     float rticks;
-    if (direction == 1) // CCw
+    if (direction == 1) // CCW
     {
         rticks = (1000) / (PI * right.diameter);
         lticks = -1.0 * rticks;

@@ -1,6 +1,6 @@
-float average(int port)
+float average(int port , int samples)
 {
-	int nums[5];
+	int nums[samples];
 	int sum = 0; 
 	float average;
 	for (int n = 0; , n < 4 , n+=1)

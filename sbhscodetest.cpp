@@ -1,15 +1,14 @@
 // Created on Wed Dec 19 2012
 
 #include <iostream>
-#include "cpptest.h"
+#include "CBCclass.h"
 
 using namespace std;
 
 int main() 
 {
 	cout << "Hello, World!" << endl;
-	calvin.build_left_motor(1 , .25 , 1000 , .1);
-	//lego.build_right_motor(2 , 
-	
+	lego.build_left_motor(1 , .25 , 1000 , .1);
+	create.average(1 , 5);
 	return 0;
 }
