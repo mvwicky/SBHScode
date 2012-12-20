@@ -74,7 +74,50 @@ int cbc::drive_straight(int s , float d)
 	return 1;
 }
 
-int drive_arc(int s , float r , float a , float d)
+int cbc::drive_arc(int s , float r , float a , float d)
 {
-	
+	float S;
+	float sinner;
+	float souter;
+	float inTicks;
+	float outTicks;
+	float sprop;
+	float lspeed;
+	float rspeed;
+	if (d == 1) //CCW
+	{
+		S = r * (a * DEG_TO_RAD);
+		sinner = ( (r - left.radius_to_middle) * (a * DEG_TO_RAD) );
+		souter = ( (r - right.radius_to_middle) * (a * DEG_TO_RAD) );
+		sprop = souter/sinner;
+		inTicks = ( (right.ticks * sinner) / (PI * right.diameter) );
+		outTicks = ( (left.ticks * sinner) / (PI * left.diameter) );
+		lspeed = (float)s * sprop * souter / S;
+        rspeed = (float)s * sprop * sinner / S;
+        mrp(right.port , ((int)rspeed) , ((int)inTicks));
+        mrp(left.port, ((int)lspeed) , ((int)outTicks));
+        bmd(right.port);
+        bmd(left.port);
+        return 0;
+	}
+	if (d == -1) //CW
+	{
+		S = r * (a * DEG_TO_RAD);
+		sinner = ( (r - right.radius_to_middle) * (a * DEG_TO_RAD) );
+		souter = ( (r - left.radius_to_middle) * (a * DEG_TO_RAD) );
+		sprop = souter/sinner;
+		inTicks = ( (left.ticks * sinner) / (PI * left.diameter) );
+		outTicks = ( (right.ticks * sinner) / (PI * right.diameter) );
+		lspeed = (float)s * sprop * sinner / S;
+        rspeed = (float)s * sprop * souter / S;
+        mrp(right.port , ((int)lspeed) , ((int)inTicks));
+        mrp(left.port, ((int)rspeed) , ((int)outTicks));
+        bmd(left.port);
+        bmd(right.port);
+        return 0;
+	}
+	if (d != 1 && d != -1)
+	{
+		return -1;
+	}
 }
