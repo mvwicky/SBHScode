@@ -21,8 +21,9 @@ methods: // unfinished
 				// t = number of ticks
 				// mi = minimum ticks
 				// ma = maximum ticks
-	drive_straight // s = speed (ticks / second)
-				   // d = distance in meters
+	drive_straight 	// not done
+					// s = speed (ticks / second)
+				    // d = distance in meters
 	drive_arc // s = speed (ticks / second)
 			  // r = radius (meters)
 			  // a = angle (degrees)
@@ -43,10 +44,12 @@ methods: // unfinished
 	double_servo_move // n = index of servo
 					  // m = index of servo
 					  // f = final position
-
+	average // port = port (analog sensor)
+			// samples = amount of samples taken (more samples = more time)
 */
 /*
 USING SENSORS
+// TODO
 
 */
 
@@ -71,24 +74,16 @@ class cbc {
 	struct s_analog {
 		int port;
 		int value;
-	} light[5] , l_top_hat[5] , s_top_hat[5] , ET[5];
+	};
 	struct s_digital {
 		int port;
 		int value;
-	} slot[5] , l_touch[5] , s_touch[5] , lever[5];
+	};
 	public:
 		void build_left_motor(int , float , float , float);
 		void build_right_motor(int , float , float , float);
 		void build_generic_motor(int , int , int , float);
 		void build_servo(int , int , int , int , int);
-		void build_light(int, int); // analog
-		void build_l_top(int, int); // analog
-		void build_s_top(int, int); // analog
-		void build_ET(int, int); // analog
-		void build_slot(int ,int); // digital
-		void build_l_touch(int ,int); // digital
-		void build_s_touch(int ,int); // digital
-		void build_lever(int ,int); // digital
 		int drive_straight(int , float);
 		int drive_arc(int , float , float , float);
 		int drive_spin(int , float , int); // DO THIS
@@ -128,46 +123,6 @@ void cbc::build_servo(int n , int p , int t , int mi , int ma)
 	servo[n].ticks = t;
 	servo[n].min = mi;
 	servo[n].max = ma;
-}
-
-void cbc::build_light(int n , int p)
-{
-	light[n].port = p;
-}
-
-void cbc::build_l_top(int n , int p)
-{
-	l_top_hat[n].port = p;
-}
-
-void cbc::build_s_top(int n , int p)
-{
-	s_top_hat[n].port = p;
-}
-
-void cbc::build_ET(int n , int p)
-{
-	ET[n].port = p;
-}
-
-void cbc::build_slot(int n , int p)
-{
-	slot[n].port = p;
-}
-
-void cbc::build_l_touch(int n , int p)
-{
-	l_touch[n].port = p;
-}
-
-void cbc::build_s_touch(int n , int p)
-{
-	s_touch[n].port = p;
-}
-
-void cbc::build_lever(int n , int p)
-{
-	lever[n].port = p;
 }
 
 int cbc::drive_straight(int s , float d)
@@ -362,7 +317,7 @@ int cbc::average(int port , int samples)
 	{
 		sum += nums[m];
 	}
-	average = (float)sum / 5.0;
+	average = (float)sum / (float)samples;
 	return ((int)average);
 }
 
