@@ -2,6 +2,7 @@
 #define CBCclass_H_INCLUDED
 #define PI 3.14159
 #define DEG_TO_RAD (PI / 180.0)
+
 /*
 class cbc: contains the structures for different motor, servos , and (TODO) sensors
 	struct drive_motors: contains information on the two main drive motors: left and right
@@ -92,6 +93,9 @@ class cbc {
 		int move_servo_to(int , int);
 		int double_servo_move(int , int , int);
 		int average(int , int);
+		int ramp_up(float , float);
+		float mm_to_ticks(float);
+		float ticks_to_mm(float);
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -317,8 +321,50 @@ int cbc::average(int port , int samples)
 	{
 		sum += nums[m];
 	}
-	average = (float)sum / (float)samples;
+	average = ((float)sum / (float)samples);
 	return ((int)average);
+}
+
+__inline int cbc::ramp_up(float speed , float distance)
+{
+	float ticks = mm_to_ticks(distance);
+	float time_f = (ticks / speed);
+	float time_s = 0;
+	float seg1 = (time_f / 5);
+	float acc = ((5 * speed) / time_f);
+	float v_subn = 0; 
+	while (time_s < seg1) // ramp up
+	{
+		v_subn = v_subn + (acc * time_s);
+		time_s += (time_f / 25);
+		mav(left.port , (int)v_subn);
+		mav(right.port , (int)v_subn);
+		sleep((time_f / 25));
+	}
+	mav(left.port , speed); // top speed
+	mav(right.port , speed);
+	time_s += ((3 * time_s) / 5);
+	while (time_s < time_f) // ramp down
+	{
+		v_subn = v_subn + ((-1.0 * acc) * time_s);
+		time_s += (time_f / 25);
+		mav(left.port , (int)v_subn);
+		mav(right.port , (int)v_subn);
+		sleep((time_f / 25));
+	}
+	return 0;
+}
+
+float cbc::mm_to_ticks(float mm)
+{
+	float ticks = ((mm * left.ticks) / (left.diameter * PI));
+	return ticks;
+}
+
+float cbc::ticks_to_mm(float ticks)
+{
+	float mm = ((ticks * (left.diameter * PI)) / left.ticks);
+	return mm;
 }
 
 #endif // CBCclass_H_INCLUDED
