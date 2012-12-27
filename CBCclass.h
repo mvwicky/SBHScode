@@ -188,24 +188,48 @@ int cbc::drive_arc(int s , float r , float a , float d) // BTW: Goes double the 
 	}
 }
 
-int cbc::drive_spin(int s , float t , int d)
+int cbc::drive_spin(int speed , float theta , int d)
 // if direction == 1 then left wheel is inner
 // if direction == -1 then right wheel is inner
 // if direction != -1 && direction != 1 then error
 {
+	float ldistance;
+	float rdistance;
 	float lticks;
 	float rticks;
+	float lspeed;
+	float rspeed;
 	if (d == 1) // CCW
 	{
-	
+		 ldistance = -1.0 * left.radius_to_middle * theta * DEG_TO_RAD;
+		 rdistance = right.radius_to_middle * theta * DEG_TO_RAD;
+		 lticks = (ldistance * left.ticks) / (left.diameter * PI);
+		 rticks = (rdistance * right.ticks) / (right.diameter * PI);
+		 lspeed = (float)speed * left.radius_to_middle / (left.radius_to_middle + left.radius_to_middle);
+		 rspeed = (float)speed * right.radius_to_middle / (right.radius_to_middle + right.radius_to_middle);
+		 mrp(left.port , (int)lspeed , (int)lticks);
+		 mrp(right.port , (int)rspeed , (int)rticks);
+		 bmd(left.port);
+		 bmd(right.port);
+		 return 0;
 	}
 	if (d == -1) // CW
 	{
-
+		 ldistance = left.radius_to_middle * theta * DEG_TO_RAD;
+		 rdistance = -1.0 * right.radius_to_middle * theta * DEG_TO_RAD;
+		 lticks = (ldistance * left.ticks) / (left.diameter * PI);
+		 rticks = (rdistance * right.ticks) / (right.diameter * PI);
+		 lspeed = (float)speed * left.radius_to_middle / (left.radius_to_middle + left.radius_to_middle);
+		 rspeed = (float)speed * right.radius_to_middle / (right.radius_to_middle + right.radius_to_middle);
+		 mrp(left.port , (int)lspeed , (int)lticks);
+		 mrp(right.port , (int)rspeed , (int)rticks);
+		 bmd(left.port);
+		 bmd(right.port);
+		 return 0;
 	}
 	if (d != 1 && d != -1)
 	{
-
+		return -1;
 	}
 }
 

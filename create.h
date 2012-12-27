@@ -2,8 +2,8 @@
 #ifndef create_H_INCLUDED
 #define create_H_INCLUDED
 
-#define DIST100(x) ( ( (.952847 * x) - 26.9) : (x) )
-#define DIST200(x) ( ( (.971316 * x) - 5.06716) : (x) )
+#define DIST100(x) ((.952847 * x) - 26.9)
+#define DIST200(x) ((.971316 * x) - 5.06716)
 // #define DIST300
 // #define DIST500
 // #define DIST600
@@ -95,6 +95,6 @@ void move900(int dist)
 }
 
 void ramp_up(float speed , float distance)
-*/
 
+*/
 #endif // create_H_INCLUDED
