@@ -8,7 +8,7 @@
     	position:absolute;
     	left:10px;
     	right:150px;
-    	border-radius: 5px;
+    	border-radius: 7px;
     	
 	}
 	.struct {
@@ -20,7 +20,7 @@
 	}
 	</style>
 <body>
-<h1>SBHS CODE</h1>
+<h1><u>SBHS CODE</u></h1>
 <div class="container">
 	This is the library for and by the SBHS Robotics Club.
 	<br>
@@ -58,7 +58,7 @@
 	<br>
 			includes:<ul>
 			<li>port: the number port that the servo is in</li>
-			<li>ticks: amount of ticks that the servo goes through (2048)</li>
+			<li>ticks: amount of ticks that the servo can go through (2048)</li>
 			<li>min: the minimum tick value (0)</li>
 			<li>max: the maximum tick value (2047)</li></ul></div>
 	<br>	
@@ -89,35 +89,32 @@
 				<li>float t: ticks: the amount of ticks in one revolution of the wheel (1000)</li>
 				<li>float d: diameter of the wheel attatched to the motors </li></ul></div>
 		<div class="struct">build_generic_motor(int , int , int , float)</div>
-			<div class="structPop">This method sets up any number of generic, non-drive related motors.<ul>
+			<div class="structPop">This method sets up any index of the generic, non-drive related motors.<ul>
 				<li>int n: index of the motor</li>
 				<li>int p: port of the motor</li>
 				<li>int t: ticks: the amount of ticks in one revolution of the wheel (1000)</li>
 				<li>float d: diameter: the diameter of the wheel attatched to the motor</li></ul></div>
 		<div class="struct">build_servo(int , int , int , int , int)</div>
-	<br>
+			<div class="structPop">This method sets up any index of the default servos.<ul>
+				<li>int n: the index of the servo</li>
+				<li>int p: the port that the servo is in</li>
+				<li>int t: ticks: amount of ticks that the servo can go through (2048)</li>
+				<li>int mi: min: the minimum value of the servo (0)</li>
+				<li>int ma: max: the maximum value of the servo (2047)</li></ul></div>
 		<div class="struct">drive_straight(int , float)</div>
-	<br>
+			<dib class="structPop">This method makes the left and right motors drive forward at the same speed.<ul>
+				<li>int s: speed: the forward velocity at ticks per second</li>
+				<li>int </li></div>
 		<div class="struct">drive_arc(int, float , float , float)</div>
-	<br>
 		<div class="struct">drive_spin(int , float , int)</div>
-	<br>
 		<div class="struct">motor_spin_for(int , float , float , int)</div>
-	<br>
 		<div class="struct">motor_spin_ticks(int , int , int , int)</div>
-	<br>
 		<div class="struct">move_servo_to(int , int)</div>
-	<br>
 		<div class="struct">double_servo_move(int , int , int)</div>
-	<br>
 		<div class="struct">average(int , int)</div>
-	<br>
 		<div class="struct">ramp_up(float , float)</div>
-	<br>
 		<div class="struct">mm_to_ticks(float)</div>
-	<br>
 		<div class="struct">ticks_to_mm(float)</div>
-	<br>
 		<div class="struct">bmd_both()</div>
 	<br>
 
