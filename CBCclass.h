@@ -341,10 +341,7 @@ int cbc::average(int port , int samples)
 	for (int n = 0; n < 4; n++)
 	{
 		nums[n] = analog10(port);
-	}
-	for (int m = 0; m < 4; m++)
-	{
-		sum += nums[m];
+		sum += nums[n];
 	}
 	average = ((float)sum / (float)samples);
 	return ((int)average);
@@ -352,7 +349,7 @@ int cbc::average(int port , int samples)
 
 __inline int cbc::ramp_up(float speed , float distance)
 {
-	float ticks = mm_to_ticks(distance);
+	float ticks = mm_to_ticks(1000 * distance);
 	float time_f = (ticks / speed);
 	float time_s = 0;
 	float seg1 = (time_f / 5);
