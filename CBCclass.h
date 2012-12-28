@@ -96,6 +96,7 @@ class cbc {
 		int ramp_up(float , float);
 		float mm_to_ticks(float);
 		float ticks_to_mm(float);
+		int bmd_both();
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -357,24 +358,29 @@ __inline int cbc::ramp_up(float speed , float distance)
 	float seg1 = (time_f / 5);
 	float acc = ((5 * speed) / time_f);
 	float v_subn = 0; 
+	float ttm = 0;
 	while (time_s < seg1) // ramp up
 	{
 		v_subn = v_subn + (acc * time_s);
+		ttm = (((v_subn * (time_f / 25)) * left.ticks) / (right.diameter * PI));
 		time_s += (time_f / 25);
-		mav(left.port , (int)v_subn);
-		mav(right.port , (int)v_subn);
-		sleep((time_f / 25));
+		mrp(left.port , (int)v_subn , (int)ttm);
+		mrp(right.port , (int)v_subn , (int)ttm);
+		bmd_both();
 	}
-	mav(left.port , speed); // top speed
-	mav(right.port , speed);
+	ttm = ((3 * speed * time_f * left.ticks) / (5 * right.diameter * PI));  
+	mrp(left.port , (int)speed , (int)ttm); // top speed
+	mrp(right.port , (int)speed , (int)ttm);
 	time_s += ((3 * time_s) / 5);
+	bmd_both();
 	while (time_s < time_f) // ramp down
 	{
 		v_subn = v_subn + ((-1.0 * acc) * time_s);
+		ttm = (((v_subn * (time_f / 25)) * left.ticks) / (right.diameter * PI));
 		time_s += (time_f / 25);
-		mav(left.port , (int)v_subn);
-		mav(right.port , (int)v_subn);
-		sleep((time_f / 25));
+		mrp(left.port , (int)v_subn , (int)ttm);
+		mrp(right.port , (int)v_subn , (int)ttm);
+		bmd_both();
 	}
 	return 0;
 }
@@ -389,6 +395,13 @@ float cbc::ticks_to_mm(float ticks)
 {
 	float mm = ((ticks * (left.diameter * PI)) / left.ticks);
 	return mm;
+}
+
+int bmd_both()
+{
+	bmd(left.port);
+	bmd(right.port);
+	return 0;
 }
 
 #endif // CBCclass_H_INCLUDED
