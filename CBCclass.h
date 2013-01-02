@@ -1,5 +1,7 @@
 #ifndef CBCclass_H_INCLUDED
 #define CBCclass_H_INCLUDED
+#include <iostream>
+#include <cmath>
 
 #define PI 3.14159
 #define E 2.71828
@@ -7,7 +9,8 @@
 #define CLOSE 1023
 #define FAR 0
 #define TOL 50
-#define TOPHAT(x) ( ( (-1.0 * 0.07331378) * (x) ) + 80 ) // I literally have no idea if this is the right function
+#define ET_DIST(x) ( ( (-1.0 * 0.07331378) * (x) ) + 80 ) // I literally have no idea if this is the right function
+#define ET_SPEED(x) ((-1.0 * 252.665) * (log(.00102755 * (x))))
 
 /*
 class cbc: contains the structures for different motor, servos , and (TODO) sensors
@@ -81,7 +84,7 @@ class cbc {
 	struct s_analog {
 		int port;
 		int value;
-	}top_hat[4];
+	}top_hat[2] , ET[2] ;
 	struct s_digital {
 		int port;
 		int value;
@@ -91,7 +94,8 @@ class cbc {
 		void build_right_motor(int , float , float , float);
 		void build_generic_motor(int , int , int , float);
 		void build_servo(int , int , int , int , int);
-		void build_top_hat(int , int);
+		int build_top_hat(int , int);
+		int build_ET(int , int);
 		float mm_to_ticks(float);
 		float ticks_to_mm(float);
 		int drive_straight(int , float);
@@ -104,7 +108,8 @@ class cbc {
 		int average(int , int);
 		int ramp_up(float , float);
 		int bmd_both();
-		int top_hat_drive(int , int); // direction to turn  , distance to move back (mm)
+		int ET_drive(int , int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn
+		int ET_align(int , int , int , int) // index , index , distance from wall , distance to go
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -138,11 +143,20 @@ void cbc::build_servo(int n , int p , int t , int mi , int ma)
 	servo[n].max = ma;
 }
 
-void cbc::build_top_hat(int n , int p)
+int cbc::build_top_hat(int n , int p)
 {
-	if (n > 4)
-		
+	if (n > 2)
+		return -1;
 	top_hat[n].port = p;
+	return 0;
+}
+
+int cbc::build_ET(int n , int p)
+{
+	if (n > 2)
+		return -1;
+	ET[n].port = p;
+	return 0;
 }
 
 float cbc::mm_to_ticks(float mm)
@@ -416,23 +430,36 @@ int cbc::bmd_both()
 	return 0;
 }
 
-int cbc::top_hat_drive(int dir , int dis) // direction to turn  , distance to move back (mm)
+int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  , distance to move back (mm) , angle to turn
 {
 
 	// Top hat sensor = highest values when closest
 	// Top hat sensor = lowest values when most far
 	// max speed = 750 t/s
 	int mspeed = 750;
-	int ticks_back = ((int)mm_to_ticks(dis));
-	int n = top_hat.port;
+	int n = top_hat[n].port;
 	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0}
 	ports[n] = 1;
-	int too_close = CLOSE - TOL;
-	int far_away = FAR + TOL;
-	
+	int too_close = CLOSE - TOL; // high
+	int far_away = FAR + TOL; // low
 	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
-	s_val = TOPHAT(analog10(n));
-	while (s_val)
+	s_dist = analog10(n);
+	while (s_val < too_close)
+	{
+		mav(left.port , ET_SPEED(s_dist));
+		mav(right.port , ET_HSPEED(s_dist))
+		s_dist = analog10(n);
+		if (s_val >= too_close)
+			break;
+	}
+	drive_straight(-250 , dis);
+	drive_spin(250 , float(theta) , dir);
+	return 0;
+}
+
+int cbc::ET_align(int n , int dist , int d_t_g)
+{
+	
 }
 
 #endif // CBCclass_H_INCLUDED

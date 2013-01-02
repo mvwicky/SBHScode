@@ -16,3 +16,4 @@ y = (-0.07331378)x + 80
 
 float ticks = ((mm * left.ticks) / (left.diameter * PI));
 distance * ticks / diameter * pi 
+
