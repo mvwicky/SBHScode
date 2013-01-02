@@ -1,0 +1,238 @@
+<html>
+<head>
+	<title>SBHS Code</title></head>
+	<style>
+	body {background: #DDD6B2;}
+	.container {
+		background: #aaa;
+    	position:absolute;
+    	left:10px;
+    	right:150px;
+    	border-radius: 7px;
+    	
+	}
+	.struct {
+		font-weight: bold;
+	}
+	.structPop {
+		position:relative;
+		left:30px;
+	
+}	</style>
+<body>
+<h1><u>SBHS CODE</u></h1>
+<div class="container">
+	This is the library for and by the SBHS Robotics Club.
+	<br>
+	This library is based on the Norman Advanced Robotics OpenCode library. 
+	<br>
+	The two files follow what are fairly drastically different coding methodologies. 
+	<br>
+	<a href="#CBC_Class">CBC Class</a><br>
+	<a href="#Create">Create Functions</a>
+
+
+	<h3><u><a name="CBC_Class">CBC Class</a></h3></u>
+	The CBC class file defines a class called cbc. Two cbc instances are called by default called lego and create. 
+	<br>
+	Obivously, the lego instance is used to control the CBC connected to the lego bot and the create instance is used to control the cbc connected to the create.
+	<br>
+	The cbc class has multiple structures that control different states of the bot. 
+	<br>
+	The class also uses several methods that alter the states of the bot and control the bots in different ways. 
+	<br>
+	<div class="struct">Structures:</div>
+	<br>
+		<div class="struct">drive_motors:</div> 
+			<div class="structPop">This structure contains the states of the motors that make the robot move around. Generally only used for the robot used in the lego bot because the create has its own drive motors. Initialized by default are left and right.
+	<br>
+			includes:
+				<ul> 
+					<li>port: the number port the drive motor is in</li>
+					<li>radius_to_middle: one half the distance between the drive motors (wheels)</li>
+					<li>ticks: amount of ticks in one revolution of the wheel. Nominally (or normally) 1000	</li>
+					<li>diameter: diameter of the wheel attatched to the motor</li>
+				</ul>
+			</div>
+		<div class="struct">gen_motor:</div> 
+			<div class="structPop">This structure contains the states of the motors that do not make the robot move around, eg arms, levers, massive cranes. Normally used for both bots. Initialized by default are motors called gen[i] where i is the index of the motor.
+	<br>
+			includes:
+				<ul>
+					<li>port: the number port that the motor is in</li>
+					<li>ticks: amount of ticks in one revolution of the wheel (1000)</li>
+					<li>diameter: diameter of the wheel attatched to the motor</li>
+				</ul>
+			</div>
+		<div class="struct">servo:</div>
+			<div class="structPop">This structure contains the states of the servos connected to the bots. Normally used for both bots.
+	<br>
+			includes:
+				<ul>
+					<li>port: the number port that the servo is in</li>
+					<li>ticks: amount of ticks that the servo can go through (2048)</li>
+					<li>min: the minimum tick value (0)</li>
+					<li>max: the maximum tick value (2047)</li>
+				</ul>
+			</div>
+	<br>	
+		<div class="struct">s_analog:</div>
+			<div class="structPop">This structure contains the two states used for analog sensors. 
+	<br>
+			includes:
+				<ul>
+					<li>port: the port that the sensor is in</li>
+					<li>value: the current value of the port, defined by the analog10 function</li>
+				</ul>
+			</div>
+		<div class="struct">s_digital:</div>
+			<div class="structPop">This structure containse the two states used for digital sensors.
+	<br>
+			includes:
+				<ul>
+					<li>port: the port that the sensor is in</li>
+					<li>value: the current value of the port defined by the digital function</li>
+				</ul>
+			</div>
+	<div class="struct">Methods:</div>
+	<br>
+		<div class="struct">build_left_motor(int , float , float , float)</div>
+			<div class="structPop">This method sets up the left drive motor, populating its values.
+				<ul>
+					<li>int p: port that the left drive motor is in</li>
+					<li>float r: radius to middle: one half the distance from one motor to the other</li>
+					<li>float t: ticks: the amount of ticks in one revolution of the wheel (1000)</li>
+					<li>float d: diameter of the wheel attatched to the motors </li>
+				</ul>
+			</div>
+		<div class="struct">build_right_motor(int , float , float , float)</div>
+			<div class="structPop">This method sets up the right drive motor, populating its values.
+				<ul>
+					<li>int p: port that the left drive motor is in</li>
+					<li>float r: radius to middle: one half the distance from one motor to the other</li>
+					<li>float t: ticks: the amount of ticks in one revolution of the wheel (1000)</li>
+					<li>float d: diameter of the wheel attatched to the motors </li>
+				</ul>
+			</div>
+		<div class="struct">build_generic_motor(int , int , int , float)</div>
+			<div class="structPop">This method sets up any index of the generic, non-drive related motors.
+				<ul>
+					<li>int n: index of the motor</li>
+					<li>int p: port of the motor</li>
+					<li>int t: ticks: the amount of ticks in one revolution of the wheel (1000)</li>
+					<li>float d: diameter: the diameter of the wheel attatched to the motor</li>
+				</ul>
+			</div>
+		<div class="struct">build_servo(int , int , int , int , int)</div>
+			<div class="structPop">This method sets up any index of the default servos.
+				<ul>
+					<li>int n: the index of the servo</li>
+					<li>int p: the port that the servo is in</li>
+					<li>int t: ticks: amount of ticks that the servo can go through (2048)</li>
+					<li>int mi: min: the minimum value of the servo (0)</li>
+					<li>int ma: max: the maximum value of the servo (2047)</li>
+				</ul>
+			</div>
+		<div class="struct">build_top_hat(int , int)</div>
+			<div class="structPop">This method sets up and index of top hat sensors
+				
+			</div>
+		<div class="struct">drive_straight(int , float)</div>
+			<div class="structPop">This method makes the left and right motors drive forward at the same speed.
+				<ul>
+					<li>int s: speed: the forward velocity at ticks per second</li>
+					<li>int d: distance: the requested move distance in meters</li>
+				</ul>
+			</div>
+		<div class="struct">drive_arc(int, float , float , float)</div>
+			<div class="structPop">This method makes the bot drive along the arc of a circle.
+				<ul>
+					<li>int s: speed in ticks per second</li>
+					<li>float r: radius in meters</li>
+					<li>float a: angle in degrees</li>
+					<li>float d: direction: if 1 then counter clockwise if -1 then clockwise</li>
+				</ul>
+			</div>
+		<div class="struct">drive_spin(int , float , int)</div>
+			<div class="structPop">This method makes the bot turn on a dime by running the motors at opposite speeds.
+				<ul>
+					<li>int speed: speed in ticks per second</li>
+					<li>float theta: the angle to spin in degrees</li>
+					<li>ind d: direction: if 1 then counter clockwise if -1 then clockwise</li>
+				</ul>
+			</div>
+		<div class="struct">motor_spin_for(int , float , float , int)</div>
+			<div class="structPop">Spins one of the generic motors for a specified amount of time.
+				<ul>
+					<li>int n: index of the motor</li>
+					<li>float s: speed in ticks per second</li>
+					<li>float t: time to spin in seconds</li>
+					<li>int c: concurrency: if 1 then other motors can operate while this motors if spinning if 0 then the opposite</li>
+				</ul>
+			</div>
+		<div class="struct">motor_spin_ticks(int , int , int , int)</div>
+			<div class="structPop">Spins one of the generic motors for a specified number of ticks
+				<ul>
+					<li>int n: index of the motor</li>
+					<li>int s: speed in ticks per secodn</li>
+					<li>int t: number of ticks to move</li>
+					<li>int c: concurrency: if 1 then other motors can operate while this motors if spinning if 0 then the opposite</li>		
+				</ul>
+			</div>
+		<div class="struct">move_servo_to(int , int)</div>
+			<div class="structPop">Moves one of the servos to the given position.
+				<ul>
+					<li>int n: index of the servo</li>
+					<li>int f: final position of the servo</li>
+				</ul>
+			</div>
+		<div class="struct">double_servo_move(int , int , int)</div>
+			<div class="structPop">Moves two servos to the same position
+				<ul>
+					<li>int n: index of the servo</li>
+					<li>int m: index of the servo</li>
+					<li>int f: final position</li>
+				</ul>
+			</div>
+		<div class="struct">average(int , int)</div>
+			<div class="structPop">Takes an amount of samples from an analog sensor and averages them.
+				<ul>
+					<li>int port: port that the senor is in</li>
+					<li>int samples: amount of samples to take. More = longer</li>
+				</ul>
+			</div>
+		<div class="struct">ramp_up(float , float)</div>
+			<div class="structPop">A drive method designed to reduce wheel jerk. It starts the bot going slow, gradually gets faster, plateaus then slows down again.
+				<ul>
+					<li>float speed: speed in ticks per second</li>
+					<li>float distance: distance in meters</li>
+				</ul>
+			</div>
+		<div class="struct">mm_to_ticks(float)</div>
+			<div class="structPop">A method, generally used internally to convert millimeters to ticks.
+				<ul>
+					<li>float mm: the amount of mm to be converted</li>
+				</ul>
+			</div>
+		<div class="struct">ticks_to_mm(float)</div>
+			<div class="structPop">A method, generally used internally to convert ticks to millimeters.
+				<ul>
+					<li>float ticks: the amount of ticks to be converted</li>
+				</ul>
+			</div>
+		<div class="struct">bmd_both()</div>
+			<div class="structPop">A method that makes sure both the left and right drive motors finish their actions before anything else happens.
+			</div>
+	<br>
+
+<h3><u><a name="Create"></a>Create Functions</h3></u>
+<br>
+This library has a much simpler design than the CBC class. 
+<br>
+The Create simply has a list of functions that can be used for the create. 
+<br>
+The movement functions are based off of regression analysis done on the create. 
+</div>
+Written and Designed by Michael Van Wickle
+</body>
+</html>

@@ -1,7 +1,13 @@
 #ifndef CBCclass_H_INCLUDED
 #define CBCclass_H_INCLUDED
+
 #define PI 3.14159
+#define E 2.71828
 #define DEG_TO_RAD (PI / 180.0)
+#define CLOSE 1023
+#define FAR 0
+#define TOL 50
+#define TOPHAT(x) ( ( (-1.0 * 0.07331378) * (x) ) + 80 ) // I literally have no idea if this is the right function
 
 /*
 class cbc: contains the structures for different motor, servos , and (TODO) sensors
@@ -75,7 +81,7 @@ class cbc {
 	struct s_analog {
 		int port;
 		int value;
-	};
+	}top_hat[4];
 	struct s_digital {
 		int port;
 		int value;
@@ -85,6 +91,9 @@ class cbc {
 		void build_right_motor(int , float , float , float);
 		void build_generic_motor(int , int , int , float);
 		void build_servo(int , int , int , int , int);
+		void build_top_hat(int , int);
+		float mm_to_ticks(float);
+		float ticks_to_mm(float);
 		int drive_straight(int , float);
 		int drive_arc(int , float , float , float);
 		int drive_spin(int , float , int); // DO THIS
@@ -94,9 +103,8 @@ class cbc {
 		int double_servo_move(int , int , int);
 		int average(int , int);
 		int ramp_up(float , float);
-		float mm_to_ticks(float);
-		float ticks_to_mm(float);
 		int bmd_both();
+		int top_hat_drive(int , int); // direction to turn  , distance to move back (mm)
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -128,6 +136,25 @@ void cbc::build_servo(int n , int p , int t , int mi , int ma)
 	servo[n].ticks = t;
 	servo[n].min = mi;
 	servo[n].max = ma;
+}
+
+void cbc::build_top_hat(int n , int p)
+{
+	if (n > 4)
+		
+	top_hat[n].port = p;
+}
+
+float cbc::mm_to_ticks(float mm)
+{
+	float ticks = ((mm * left.ticks) / (left.diameter * PI));
+	return ticks;
+}
+
+float cbc::ticks_to_mm(float ticks)
+{
+	float mm = ((ticks * (left.diameter * PI)) / left.ticks);
+	return mm;
 }
 
 int cbc::drive_straight(int s , float d)
@@ -382,23 +409,36 @@ __inline int cbc::ramp_up(float speed , float distance)
 	return 0;
 }
 
-float cbc::mm_to_ticks(float mm)
-{
-	float ticks = ((mm * left.ticks) / (left.diameter * PI));
-	return ticks;
-}
-
-float cbc::ticks_to_mm(float ticks)
-{
-	float mm = ((ticks * (left.diameter * PI)) / left.ticks);
-	return mm;
-}
-
-int bmd_both()
+int cbc::bmd_both()
 {
 	bmd(left.port);
 	bmd(right.port);
 	return 0;
 }
 
+int cbc::top_hat_drive(int dir , int dis) // direction to turn  , distance to move back (mm)
+{
+
+	// Top hat sensor = highest values when closest
+	// Top hat sensor = lowest values when most far
+	// max speed = 750 t/s
+	int mspeed = 750;
+	int ticks_back = ((int)mm_to_ticks(dis));
+	int n = top_hat.port;
+	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0}
+	ports[n] = 1;
+	int too_close = CLOSE - TOL;
+	int far_away = FAR + TOL;
+	
+	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
+	s_val = TOPHAT(analog10(n));
+	while (s_val)
+}
+
 #endif // CBCclass_H_INCLUDED
+
+// theoretical furthest distance 80cm = 0
+// theoretical closest distance 5cm = 1023
+// (0 , 80)
+// (1023 , 5)
+// 
