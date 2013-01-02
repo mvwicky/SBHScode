@@ -17,3 +17,10 @@ y = (-0.07331378)x + 80
 float ticks = ((mm * left.ticks) / (left.diameter * PI));
 distance * ticks / diameter * pi 
 
+align
+
+in terms of the outer wheel
+(80 , 0) aka...if super far away, then stop the outside wheel
+(0 , 750) aka...if super close, then super fast outside wheel	
+
+

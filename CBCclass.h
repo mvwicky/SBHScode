@@ -11,57 +11,7 @@
 #define TOL 50
 #define ET_DIST(x) ( ( (-1.0 * 0.07331378) * (x) ) + 80 ) // I literally have no idea if this is the right function
 #define ET_SPEED(x) ((-1.0 * 252.665) * (log(.00102755 * (x))))
-
-/*
-class cbc: contains the structures for different motor, servos , and (TODO) sensors
-	struct drive_motors: contains information on the two main drive motors: left and right
-	struct gen_motor: contains information on motors not associated with driving
-	struct servo: contains information on servos
-methods: // unfinished
-	build_left/right_motor // p = port
-					 	   // r = 1/2 of the distance from one motor to the other (meters)
-					   	   // ticks per rev (1000)
-					       // diameter of the wheel (meters)
-	build_generic_motor // n = index of motor (10 are initialized)
-						// p = port 
-						// t = number of ticks
-						// d = diameter of the wheel (meters)
-	build_servo // n = index of servo (10 are initialized)
-				// p = port 
-				// t = number of ticks
-				// mi = minimum ticks
-				// ma = maximum ticks
-	drive_straight 	// not done
-					// s = speed (ticks / second)
-				    // d = distance in meters
-	drive_arc // s = speed (ticks / second)
-			  // r = radius (meters)
-			  // a = angle (degrees)
-			  // d = direction (1 = CCW , -1 = CW , neither = error)
-	drive_spin // s = speed (ticks / second) 
-			   // t = theta (degrees)
-			   // d = direction (1 = CCW , -1 = CW , neither = error)
-	motor_spin_for // n = index of motor
-				   // s = speed (ticks / second)
-				   // t = time (seconds)
-				   // c = concurrency (if 1 then other things can run with the motor of 0 then no)
-	motor_spin_ticks // n = index of motor
-					 // s = speed
-					 // t = ticks (ticks)
-					 // c = concurrency (if 1 then other things can run with the motor of 0 then no)
-	move_servo_to // n = index of servo
-				  // f = final position
-	double_servo_move // n = index of servo
-					  // m = index of servo
-					  // f = final position
-	average // port = port (analog sensor)
-			// samples = amount of samples taken (more samples = more time)
-*/
-/*
-USING SENSORS
-// TODO
-
-*/
+#define A_DEL 3
 
 class cbc {
 	struct drive_motors {
@@ -108,8 +58,9 @@ class cbc {
 		int average(int , int);
 		int ramp_up(float , float);
 		int bmd_both();
-		int ET_drive(int , int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn
-		int ET_align(int , int , int , int) // index , index , distance from wall , distance to go
+		int ET_drive(int , int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn 
+		int ET_align(int , int , int , int); // index , index , distance from wall , distance to go , side the sensors are on (-1 = L , 1 = R)
+										     // only works for one side, assumes that you have the two ET sendors on one side
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -437,7 +388,7 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	// Top hat sensor = lowest values when most far
 	// max speed = 750 t/s
 	int mspeed = 750;
-	int n = top_hat[n].port;
+	int n = ET[n].port;
 	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0}
 	ports[n] = 1;
 	int too_close = CLOSE - TOL; // high
@@ -447,7 +398,7 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	while (s_val < too_close)
 	{
 		mav(left.port , ET_SPEED(s_dist));
-		mav(right.port , ET_HSPEED(s_dist))
+		mav(right.port , ET_SPEED(s_dist))
 		s_dist = analog10(n);
 		if (s_val >= too_close)
 			break;
@@ -457,9 +408,110 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	return 0;
 }
 
-int cbc::ET_align(int n , int dist , int d_t_g)
+int cbc::ET_align(int n , int m ,  int dist , int s)// n = front , m = back , dist = dist from wall , d_t_g = distance to move , s = side the sensors are on
 {
-	
+	int mspeed = 750;
+	int clspeed = mspeed;
+	int crspeed = mspeed;
+	int n_p = ET[n].port;
+	int m_p = ET[n].port;
+	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
+	ports[n_p] = 1;
+	ports[m_p] = 1;
+	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7])
+	int f_sens = analog10(n_p);
+	int b_sens = analog10(m_p);
+	float f_dist =  ET_DIST(f_sens);
+	float b_dist = ET_DIST(b_sens);
+	float avg_dist = ((f_dist + b_dist) / 2);
+	float too_close = dist - (dist / 5)
+	float far_away = dist + (dist / 5)
+	if (avg_dist == dist)
+		return;
+	if (s == 1)
+	{
+		while (1)
+		{
+			f_sens = analog10(n_p);
+			b_sens = analog10(m_p);
+			f_dist = ET_DIST(f_sens);
+			b_dist = ET_DIST(b_sens);
+			avg_dist = ((f_dist + b_dist) / 2);
+			mav(left.port , clspeed);
+			mav(right.port , crspeed);
+			if (f_dist == b_dist);
+			if (f_dist > b_dist) // make right go faster , left slower
+			{
+				clspeed++;
+				crspeed--;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (b_dist > f_dist) // make left go faster , left slower
+			{
+				clspeed--;
+				crspeed++;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (avg_dist > dist)
+			{
+				clspeed+=A_DEL;
+				clspeed-=A_DEL;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (dist > avg_dist)
+			{
+				clspeed-=A_DEL;
+				crspeed+=A_DEL;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+		}
+	}
+	if (s == -1)
+	{
+		while (1)
+		{
+			f_sens = analog10(n_p);
+			b_sens = analog10(m_p);
+			f_dist = ET_DIST(f_sens);
+			b_dist = ET_DIST(b_sens);
+			mav(left.port , clspeed);
+			mav(right.port , crspeed);
+			if (f_dist == b_dist);
+			if (f_dist > b_dist)
+			{
+				clspeed--;
+				crspeed++;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (b_dist > f_dist)
+			{
+				clspeed++;
+				crspeed--;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (avg_dist > dist)
+			{
+				clspeed-=A_DEL;
+				crspeed+=A_DEL;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+			if (dist > avg_dist)
+			{
+				clspeed+=A_DEL;
+				crspeed-=A_DEL;
+				mav(left.port , clspeed);
+				mav(right.port , crspeed);
+			}
+		}
+	}
+	return 0;
 }
 
 #endif // CBCclass_H_INCLUDED
@@ -468,4 +520,5 @@ int cbc::ET_align(int n , int dist , int d_t_g)
 // theoretical closest distance 5cm = 1023
 // (0 , 80)
 // (1023 , 5)
-// 
+// (80 , 0)
+// ()
