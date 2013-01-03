@@ -388,19 +388,19 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	// Top hat sensor = lowest values when most far
 	// max speed = 750 t/s
 	int mspeed = 750;
-	int n = ET[n].port;
-	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0}
+	int f = ET[n].port;
+	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
 	ports[n] = 1;
 	int too_close = CLOSE - TOL; // high
 	int far_away = FAR + TOL; // low
 	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
-	s_dist = analog10(n);
-	while (s_val < too_close)
+	int s_dist = analog10(n);
+	while (s_dist < too_close)
 	{
 		mav(left.port , ET_SPEED(s_dist));
-		mav(right.port , ET_SPEED(s_dist))
+		mav(right.port , ET_SPEED(s_dist));
 		s_dist = analog10(n);
-		if (s_val >= too_close)
+		if (s_dist >= too_close)
 			break;
 	}
 	drive_straight(-250 , dis);
@@ -418,16 +418,16 @@ int cbc::ET_align(int n , int m ,  int dist , int s)// n = front , m = back , di
 	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
 	ports[n_p] = 1;
 	ports[m_p] = 1;
-	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7])
+	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
 	int f_sens = analog10(n_p);
 	int b_sens = analog10(m_p);
 	float f_dist =  ET_DIST(f_sens);
 	float b_dist = ET_DIST(b_sens);
 	float avg_dist = ((f_dist + b_dist) / 2);
-	float too_close = dist - (dist / 5)
-	float far_away = dist + (dist / 5)
+	float too_close = dist - (dist / 5);
+	float far_away = dist + (dist / 5);
 	if (avg_dist == dist)
-		return;
+		return 0;
 	if (s == 1)
 	{
 		while (1)
