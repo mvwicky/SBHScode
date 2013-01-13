@@ -4,12 +4,26 @@
 
 #define DIST100(x) ((.952847 * x) - 26.9)
 #define DIST200(x) ((.971316 * x) - 5.06716)
+#define GDIST get_create_distance
+#define LAG .001
 // #define DIST300
 // #define DIST500
 // #define DIST600
 // #define DIST700
 // #define DIST800
 // #define DIST900
+
+void move_while(int speed , int togo)
+{
+	set_create_distance(0);
+	int dist = GDIST(LAG);
+	while (dist < togo)
+	{
+		create_drive_direct(speed , speed);
+		dist = GDIST(LAG);
+		msleep(.001);
+	}
+}
 
 void move100(float dist)
 {
