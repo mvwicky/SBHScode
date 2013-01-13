@@ -6,8 +6,8 @@
 #define PI 3.14159
 #define E 2.71828
 #define DEG_TO_RAD (PI / 180.0)
-#define CLOSE 1023
-#define FAR 0
+#define EC 1023 // Closest value of the ET
+#define EF 0 // Furthest value of the ET
 #define TOL 50
 #define ET_DIST(x) ( ( (-1.0 * 0.07331378) * (x) ) + 80 ) // I literally have no idea if this is the right function
 #define ET_SPEED(x) ((-1.0 * 252.665) * (log(.00102755 * (x))))
@@ -391,8 +391,8 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	int f = ET[n].port;
 	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
 	ports[n] = 1;
-	int too_close = CLOSE - TOL; // high
-	int far_away = FAR + TOL; // low
+	int too_close = EC - TOL; // high
+	int far_away = EF + TOL; // low
 	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
 	int s_dist = analog10(n);
 	while (s_dist < too_close)
