@@ -34,7 +34,7 @@ class cbc {
 	struct s_analog {
 		int port;
 		int value;
-	}top_hat[2] , ET[2] ;
+	}top_hat , ET, s_top_hat[5] , slot[2] , light[3];
 	struct s_digital {
 		int port;
 		int value;
@@ -339,15 +339,17 @@ int cbc::average(int port , int samples)
 	return ((int)average);
 }
 
-__inline int cbc::ramp_up(float speed , float distance)
+__inline int cbc::ramp_up(float speed , float distance) // this function makes the speed of the CBC go from a low speed to a top speed and back down
 {
+	// the way that this works is that it calculates the total time needed. Then it divides the time into five segments. The first segment is for
+	// the low speed. The middle three segments are for going at top speed. The last segment is for slowing down. 
 	float ticks = mm_to_ticks(1000 * distance);
 	float time_f = (ticks / speed);
 	float time_s = 0;
 	float seg1 = (time_f / 5);
 	float acc = ((5 * speed) / time_f);
-	float v_subn = 0; 
-	float ttm = 0;
+	float v_subn = 0; // the velocity at during each segment
+	float ttm = 0; // ticks to move
 	while (time_s < seg1) // ramp up
 	{
 		v_subn = v_subn + (acc * time_s);
