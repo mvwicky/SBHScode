@@ -7,8 +7,8 @@
 #define SDIST set_create_distance
 #define GDIST get_create_distance(LAG)
 #define LAG .001
-#define LFWALL get_create_lfwall_amt(LAG)
-#define RFWALL get_create_rfwall_amt(LAG)
+#define LFCLIFF get_create_lfcliff_amt(LAG)
+#define RFCLIFF get_create_rfcliff_amt(LAG)
 #define WHITE 275
 #define BLACK 450
 
@@ -27,9 +27,46 @@ void move_while(int speed , int togo)
 	}
 }
 
-void set_cliffs()
+void set_cliff()
 {
-	
+	if (LFCLIFF <= WHITE)
+	{
+		left_cliff_black = false;
+	}
+	if (LFCLIFF >= BLACK)
+	{
+		left_cliff_black = true;
+	}
+	if (RFCLIFF <= WHITE)
+	{
+		right_cliff_black = false;
+	}
+	if (RFCLIFF >= BLACK)
+	{
+		right_cliff_black = true;
+	}
+}
+
+void line_track(int dist)
+{
+	int rspeed = 500;
+	int lspeed = 500;
+	int dist_g = GDIST;
+	while (dist_g <= dist)
+	{
+		if (left_cliff_black == false || right_cliff_black == true)
+		{
+			rspeed += 5;
+			lspeed -= 5;
+		}
+		if (left_cliff_black == true || right_cliff_black == false)
+		{
+			rspeed -= 5;
+			lspeed += 5;
+		}
+		dist_g = GDIST;
+		set_cliff();
+	}
 }
 
 void ramp_up(float speed , float distance)

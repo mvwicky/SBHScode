@@ -24,13 +24,13 @@ class cbc {
 		int port;
 		int ticks;
 		float diameter;
-	} gen[10];
+	} gen[4];
 	struct servo {
 		int port;
 		int ticks;
 		int min;
 		int max;
-	}servo[10];
+	}servo[6];
 	struct s_analog {
 		int port;
 		int value;
@@ -38,14 +38,14 @@ class cbc {
 	struct s_digital {
 		int port;
 		int value;
-	};
+	}lego , create;
 	public:
 		void build_left_motor(int , float , float , float);
 		void build_right_motor(int , float , float , float);
 		void build_generic_motor(int , int , int , float);
 		void build_servo(int , int , int , int , int);
-		int build_top_hat(int , int);
-		int build_ET(int , int);
+		int build_top_hat(int);
+		int build_ET(int);
 		float mm_to_ticks(float);
 		float ticks_to_mm(float);
 		int drive_straight(int , float);
@@ -58,9 +58,9 @@ class cbc {
 		int average(int , int);
 		int ramp_up(float , float);
 		int bmd_both();
-		int ET_drive(int , int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn 
-		int ET_align(int , int , int , int); // index , index , distance from wall , distance to go , side the sensors are on (-1 = L , 1 = R)
-										     // only works for one side, assumes that you have the two ET sendors on one side
+		int ET_drive(int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn 
+		int line_follow(int , int , int) // distance, index , index
+		
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -94,19 +94,15 @@ void cbc::build_servo(int n , int p , int t , int mi , int ma)
 	servo[n].max = ma;
 }
 
-int cbc::build_top_hat(int n , int p)
+int cbc::build_top_hat(int p)
 {
-	if (n > 2)
-		return -1;
-	top_hat[n].port = p;
+	top_hat.port = p;
 	return 0;
 }
 
-int cbc::build_ET(int n , int p)
+int cbc::build_ET(int p)
 {
-	if (n > 2)
-		return -1;
-	ET[n].port = p;
+	ET.port = p;
 	return 0;
 }
 
@@ -383,25 +379,25 @@ int cbc::bmd_both()
 	return 0;
 }
 
-int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  , distance to move back (mm) , angle to turn
+int cbc::ET_drive(int dir , int dis , int theta) // direction to turn  , distance to move back (mm) , angle to turn
 {
 
 	// Top hat sensor = highest values when closest
 	// Top hat sensor = lowest values when most far
 	// max speed = 750 t/s
 	int mspeed = 750;
-	int f = ET[n].port;
+	int f = ET.port;
 	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
-	ports[n] = 1;
+	ports[f] = 1;
 	int too_close = EC - TOL; // high
 	int far_away = EF + TOL; // low
 	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
-	int s_dist = analog10(n);
+	int s_dist = analog10(f);
 	while (s_dist < too_close)
 	{
 		mav(left.port , ET_SPEED(s_dist));
 		mav(right.port , ET_SPEED(s_dist));
-		s_dist = analog10(n);
+		s_dist = analog10(f);
 		if (s_dist >= too_close)
 			break;
 	}
@@ -410,110 +406,14 @@ int cbc::ET_drive(int n , int dir , int dis , int theta) // direction to turn  ,
 	return 0;
 }
 
-int cbc::ET_align(int n , int m ,  int dist , int s)// n = front , m = back , dist = dist from wall , d_t_g = distance to move , s = side the sensors are on
+int cbc::line_follow(int cond , int n , int m)
 {
-	int mspeed = 750;
-	int clspeed = mspeed;
-	int crspeed = mspeed;
-	int n_p = ET[n].port;
-	int m_p = ET[n].port;
-	int ports[8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};
-	ports[n_p] = 1;
-	ports[m_p] = 1;
-	set_each_analog_state(ports[0] , ports[1] , ports[2] , ports[3] , ports[4] , ports[5] , ports[6] , ports[7]);
-	int f_sens = analog10(n_p);
-	int b_sens = analog10(m_p);
-	float f_dist =  ET_DIST(f_sens);
-	float b_dist = ET_DIST(b_sens);
-	float avg_dist = ((f_dist + b_dist) / 2);
-	float too_close = dist - (dist / 5);
-	float far_away = dist + (dist / 5);
-	if (avg_dist == dist)
-		return 0;
-	if (s == 1)
+	int white = valw;
+	int black = valb;
+	while (cond)
 	{
-		while (1)
-		{
-			f_sens = analog10(n_p);
-			b_sens = analog10(m_p);
-			f_dist = ET_DIST(f_sens);
-			b_dist = ET_DIST(b_sens);
-			avg_dist = ((f_dist + b_dist) / 2);
-			mav(left.port , clspeed);
-			mav(right.port , crspeed);
-			if (f_dist == b_dist);
-			if (f_dist > b_dist) // make right go faster , left slower
-			{
-				clspeed++;
-				crspeed--;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (b_dist > f_dist) // make left go faster , left slower
-			{
-				clspeed--;
-				crspeed++;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (avg_dist > dist)
-			{
-				clspeed+=A_DEL;
-				clspeed-=A_DEL;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (dist > avg_dist)
-			{
-				clspeed-=A_DEL;
-				crspeed+=A_DEL;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-		}
+		
 	}
-	if (s == -1)
-	{
-		while (1)
-		{
-			f_sens = analog10(n_p);
-			b_sens = analog10(m_p);
-			f_dist = ET_DIST(f_sens);
-			b_dist = ET_DIST(b_sens);
-			mav(left.port , clspeed);
-			mav(right.port , crspeed);
-			if (f_dist == b_dist);
-			if (f_dist > b_dist)
-			{
-				clspeed--;
-				crspeed++;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (b_dist > f_dist)
-			{
-				clspeed++;
-				crspeed--;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (avg_dist > dist)
-			{
-				clspeed-=A_DEL;
-				crspeed+=A_DEL;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-			if (dist > avg_dist)
-			{
-				clspeed+=A_DEL;
-				crspeed-=A_DEL;
-				mav(left.port , clspeed);
-				mav(right.port , crspeed);
-			}
-		}
-	}
-	return 0;
 }
 
 #endif // CBCclass_H_INCLUDED
