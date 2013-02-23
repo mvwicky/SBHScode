@@ -59,8 +59,8 @@ class cbc {
 		int ramp_up(float , float);
 		int bmd_both();
 		int ET_drive(int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn 
-		int line_follow(int , int , int) // distance, index , index
-		
+		int line_follow(int , int , int); // distance, index , index
+		int num_of_in_ch(int); // channel
 }lego , create;
 
 void cbc::build_left_motor(int p , float r , float t , float d)
@@ -326,7 +326,7 @@ int cbc::average(int port , int samples)
 	int nums[samples];
 	int sum = 0; 
 	float average;
-	for (int n = 0; n < 4; n++)
+	for (int n = 0; n < samples; n++)
 	{
 		nums[n] = analog10(port);
 		sum += nums[n];
@@ -408,12 +408,14 @@ int cbc::ET_drive(int dir , int dis , int theta) // direction to turn  , distanc
 
 int cbc::line_follow(int cond , int n , int m)
 {
-	int white = valw;
-	int black = valb;
-	while (cond)
-	{
-		
-	}
+	int white = 0;
+	int black = 1;
+	
+}
+
+int cbc::num_of_in_ch(int chan)
+{
+	
 }
 
 #endif // CBCclass_H_INCLUDED
