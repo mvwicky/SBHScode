@@ -34,32 +34,36 @@ class cbc {
 	struct s_analog {
 		int port;
 		int value;
+		int high_thresh;
+		int low_thresh;
 	}top_hat , ET, s_top_hat[5] , slot[2] , light[3];
 	struct s_digital {
 		int port;
 		int value;
 	}lego , create;
 	public:
-		void build_left_motor(int , float , float , float);
-		void build_right_motor(int , float , float , float);
-		void build_generic_motor(int , int , int , float);
-		void build_servo(int , int , int , int , int);
-		int build_top_hat(int);
-		int build_ET(int);
-		float mm_to_ticks(float);
-		float ticks_to_mm(float);
-		int drive_straight(int , float);
-		int drive_arc(int , float , float , float);
-		int drive_spin(int , float , int); // DO THIS
-		int motor_spin_for(int , float , float , int); // 
-		int motor_spin_ticks(int , int , int , int);
-		int move_servo_to(int , int);
-		int double_servo_move(int , int , int);
-		int average(int , int);
-		int ramp_up(float , float);
-		int bmd_both();
+		void build_left_motor(int , float , float , float); // port , radius to middle (of chassis) , # of ticks ,  diameter (of wheel)
+		void build_right_motor(int , float , float , float); // port , radius to middle (of chassis) , # of ticks ,  diameter (of wheel)
+		void build_generic_motor(int , int , int , float); // port , # of ticks ,  diameter (of wheel)
+		void build_servo(int , int , int , int , int); //port , number of ticks , min , max
+		int build_top_hat(int , int , int); // port , high threshold (black) , low threshold (white)
+		int build_s_top_hat(int , int , int , int); // index , port , high threshold (black) , low threshold (white)
+		int build_ET(int); // port
+		float mm_to_ticks(float); // distance in mm
+		float ticks_to_mm(float); // ticks in ticks
+		int drive_straight(int , float); // speed , distance
+		int drive_arc(int , float , float , float); // speed , radius , angle , direction
+		int drive_spin(int , float , int); // speed , angle , direction
+		int motor_spin_for(int , float , float); // motor index, speed , time
+		int motor_spin_ticks(int , int , int); // motor index , speed , ticks
+		int move_servo_to(int , int); // servo index , servo final position
+		int double_servo_move(int , int , int); // servo index 1 , servo index 2 , final position
+		int average(int , int); // port (analog sensor) , amount of samples
+		int ramp_up(float , float); // speed , distance
+		int bmd_both(); // 
 		int ET_drive(int , int , int); // index , direction to turn  , distance to move back (mm) , direction to turn 
-		int line_follow(int , int , int); // distance, index , index
+		void set_lines(int , int); // left , right (indicies (of small top hats))
+		int line_follow(int , int , int); // base speed , left , right (indicies (of small top hats))
 		int num_of_in_ch(int); // channel
 }lego , create;
 
@@ -94,9 +98,19 @@ void cbc::build_servo(int n , int p , int t , int mi , int ma)
 	servo[n].max = ma;
 }
 
-int cbc::build_top_hat(int p)
+int cbc::build_top_hat(int p , int h , int l)
 {
 	top_hat.port = p;
+	top_hat.high_thresh = h;
+	top_hat.low_thresh = l;
+	return 0;
+}
+
+int cbc::build_s_top_hat(int i , int p , int h , int l)
+{
+	s_top_hat[i].port = p;
+	s_top_hat[i].high_thresh = h;
+	s_top_hat[i].low_thresh = l;
 	return 0;
 }
 
@@ -222,26 +236,17 @@ int cbc::drive_spin(int speed , float theta , int d)
 	}
 }
 
-int cbc::motor_spin_for(int n , float s , float t , int c)
+int cbc::motor_spin_for(int n , float s , float t)
 {
 	float ticks = (s * t);
 	mrp(gen[n].port , (int)s , (int)ticks);
-	if (c == 0)
-	{
-		bmd(gen[n].port);
-	}
 	else;
 	return 0;
 }
 
-int cbc::motor_spin_ticks(int n , int s , int t , int c)
+int cbc::motor_spin_ticks(int n , int s , int t)
 {
 	mrp(gen[n].port , s , t);
-	if (c == 0)
-	{
-		bmd(gen[n].port);
-	}
-	else;
 	return 0;
 }
 
@@ -406,11 +411,31 @@ int cbc::ET_drive(int dir , int dis , int theta) // direction to turn  , distanc
 	return 0;
 }
 
-int cbc::line_follow(int cond , int n , int m)
+void cbc::set_lines(int l , int r) // the left and right sensors indicies
 {
-	int white = 0;
-	int black = 1;
-	
+	s_top_hat[l].value = analog10(s_top_hat[l].port);
+	s_top_hat[r].value = analog10(s_top_hat[r].port);
+
+}
+
+int cbc::line_follow(int base_speed , int l , int r) // base speed , left , right (indicies (of small top hats))
+{
+	int left_speed = base_speed;
+	int right_speed = base_speed;
+	set_lines(l , r);
+	if (s_top_hat[l].value <= s_top_hat[l].low_thresh || s_top_hat[r].value >= s_top_hat[r].high_thresh)
+	{
+		left_speed += 5;
+		right_speed -= 5;
+	}
+	if (s_top_hat[l].value >= s_top_hat[l].high_thresh || s_top_hat[r].value <= s_top_hat[r].low_thresh)
+	{
+		left_speed -= 5;
+		right_speed +=5;
+	}
+	mav(s_top_hat[l].port , left_speed);
+	mav(s_top_hat[r].port , right_speed);
+	msleep(10); 
 }
 
 int cbc::num_of_in_ch(int chan)

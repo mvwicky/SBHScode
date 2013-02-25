@@ -54,6 +54,7 @@ void line_track(int dist)
 	int dist_g = GDIST;
 	while (dist_g <= dist)
 	{
+		set_cliff();
 		if (left_cliff_black == false || right_cliff_black == true)
 		{
 			rspeed += 5;
@@ -64,8 +65,9 @@ void line_track(int dist)
 			rspeed -= 5;
 			lspeed += 5;
 		}
+		create_drive_direct(rspeed , lspeed);
 		dist_g = GDIST;
-		set_cliff();
+		msleep(10);
 	}
 }
 
