@@ -157,32 +157,30 @@ int cbc::drive_arc(int s , float r , float a , float d) // BTW: Goes double the 
 	{
 		S = r * (a * DEG_TO_RAD);
 		sinner = ( (r - left.radius_to_middle) * (a * DEG_TO_RAD) );
-		souter = ( (r - right.radius_to_middle) * (a * DEG_TO_RAD) );
+		souter = ( (r + right.radius_to_middle) * (a * DEG_TO_RAD) );
 		sprop = souter/sinner;
 		inTicks = ( (right.ticks * sinner) / (PI * right.diameter) );
-		outTicks = ( (left.ticks * sinner) / (PI * left.diameter) );
+		outTicks = ( (left.ticks * souter) / (PI * left.diameter) );
 		lspeed = (float)s * sprop * souter / S;
         rspeed = (float)s * sprop * sinner / S;
         mrp(right.port , ((int)rspeed) , ((int)inTicks));
         mrp(left.port, ((int)lspeed) , ((int)outTicks));
-        bmd(right.port);
-        bmd(left.port);
+        bmd_both();
         return 0;
 	}
 	if (d == -1) //CW
 	{
 		S = r * (a * DEG_TO_RAD);
 		sinner = ( (r - right.radius_to_middle) * (a * DEG_TO_RAD) );
-		souter = ( (r - left.radius_to_middle) * (a * DEG_TO_RAD) );
+		souter = ( (r + left.radius_to_middle) * (a * DEG_TO_RAD) );
 		sprop = souter/sinner;
 		inTicks = ( (left.ticks * sinner) / (PI * left.diameter) );
-		outTicks = ( (right.ticks * sinner) / (PI * right.diameter) );
+		outTicks = ( (right.ticks * souter) / (PI * right.diameter) );
 		lspeed = (float)s * sprop * sinner / S;
         rspeed = (float)s * sprop * souter / S;
         mrp(right.port , ((int)lspeed) , ((int)inTicks));
         mrp(left.port, ((int)rspeed) , ((int)outTicks));
-        bmd(left.port);
-        bmd(right.port);
+        bmd_both();
         return 0;
 	}
 	if (d != 1 && d != -1)
@@ -240,7 +238,6 @@ int cbc::motor_spin_for(int n , float s , float t)
 {
 	float ticks = (s * t);
 	mrp(gen[n].port , (int)s , (int)ticks);
-	else;
 	return 0;
 }
 
