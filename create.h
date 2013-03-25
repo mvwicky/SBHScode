@@ -2,6 +2,7 @@
 #ifndef create_H_INCLUDED
 
 #define create_H_INCLUDED
+#define create_drive_direct(x , y) create_drive_direct(y , x)
 #define DIST100(x) ((.952847 * x) - 26.9)
 #define DIST200(x) ((.971316 * x) - 5.06716)
 #define SDIST set_create_distance(LAG)
@@ -99,8 +100,10 @@ __inline int create_ramp_up(float speed , float distance)
  	return 0;
 
 }
-
-
+void get_cliffs()
+{
+	cout << "Left = " << LFCLIFF << "Right = " << RFCLIFF << endl;
+}
 
 #endif // create_H_INCLUDED
 

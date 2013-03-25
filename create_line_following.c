@@ -36,6 +36,7 @@ void line_follow()
 {
 	int ldrive = 100;
 	int hdrive = 300;
+	int mdrive = 200;
 	if (LFCLIFF >= T && RFCLIFF <= T)
 	{
 		create_drive_direct(hdrive , ldrive);
